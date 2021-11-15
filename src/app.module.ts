@@ -12,7 +12,7 @@ import { AppService } from './app.service';
     }),
     TypeOrmModule.forRoot({
       type: 'sqlite',
-      database: 'eight-percent.db',
+      database: 'humanscape.db',
       entities: [__dirname + '/**/entities/*.entity{.ts,.js}'],
       synchronize: true,
     }),
