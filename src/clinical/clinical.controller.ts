@@ -7,9 +7,9 @@ export class ClinicalController {
 
   //테스트용도. 추후 삭제 할 것
   @Get()
-  enterData() {
-    this.clinicalService.getAPIData(10, 1);
-    // return data;
+  async enterData() {
+    const data = await this.clinicalService.enterInitialData();
+    return data;
   }
   ///////////
 }

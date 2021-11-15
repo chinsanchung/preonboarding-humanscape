@@ -36,3 +36,6 @@ lerna-debug.log*
 
 # db
 humanscape.db
+
+# environment file
+.env
