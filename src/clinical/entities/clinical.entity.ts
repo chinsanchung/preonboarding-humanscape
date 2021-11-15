@@ -1,5 +1,6 @@
 import { CoreEntity } from '../../core/entities/core.entity';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, ManyToOne } from 'typeorm';
+import { Step } from '../../step/entities/step.entity';
 
 @Entity()
 export class Clinical extends CoreEntity {
@@ -17,4 +18,7 @@ export class Clinical extends CoreEntity {
 
   @Column()
   APPROVAL_TIME: Date;
+
+  @ManyToOne((_type) => Step, (step) => step.clinicals)
+  step: Step;
 }
