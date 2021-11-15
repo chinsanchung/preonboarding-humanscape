@@ -8,9 +8,8 @@ export class ClinicalController {
   //테스트용도. 추후 삭제 할 것
   @Get()
   enterData() {
-    const data = this.clinicalService.getAPIData();
-    console.log(data);
-    return data;
+    this.clinicalService.getAPIData(10, 1);
+    // return data;
   }
   ///////////
 }
