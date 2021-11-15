@@ -1,12 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Clinical } from './entities/clinical.entity';
+import { ClinicalRepository } from './clinical.repository';
 
 @Injectable()
 export class ClinicalService {
   constructor(
-    @InjectRepository(Clinical)
-    private readonly clinicalRepository: Repository<Clinical>,
+    @InjectRepository(ClinicalRepository)
+    private readonly clinicalRepository: ClinicalRepository,
   ) {}
 }
