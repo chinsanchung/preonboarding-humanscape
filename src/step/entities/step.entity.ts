@@ -3,6 +3,6 @@ import { Column, Entity } from 'typeorm';
 
 @Entity()
 export class Step extends CoreEntity {
-  @Column()
+  @Column({ unique: true })
   name: string;
 }
