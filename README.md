@@ -44,21 +44,14 @@
 
 ## 조원
 
-| 이름 | 외부링크 | 담당 기능 |
-
+| 이름         | 외부링크                                                                                                                                        | 담당 기능                                                               |
 | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-
-| 이현준(조장) | [깃허브](https://github.com/lhj0621)/[블로그](https://supiz.tistory.com/) | 총괄, 유닛 테스트, 헤로쿠 배포 |
-
-| 김태련 | [깃허브](https://github.com/nojamcode)/[블로그](https://velog.io/@code-link) | 유닛테스트 |
-
-| 신영학 | [깃허브](https://github.com/yhshin0)/[블로그](https://nbkw.tistory.com/) | 유닛 테스트 |
-
-| 임유라 | [깃허브](https://github.com/BangleCoding)/[블로그](https://banglecoding.github.io/) | 유닛 테스트 , README 작성 |
-
-| 이기범 | [깃허브](https://github.com/gibson-lee93)/[블로그](https://mysterious-laborer-518.notion.site/Gibson-s-Notion-2dd7f598fba64f1c9806cded5b4b83a0) | 유닛 테스트|
-
-| 정진산 | [깃허브](https://github.com/chinsanchung)/[블로그](https://chinsanchung.github.io/) | 유닛 테스트 |
+| 이현준(조장) | [깃허브](https://github.com/lhj0621)/[블로그](https://supiz.tistory.com/)                                                                       | 총괄, 조회, 검색, 유닛 테스트, 헤로쿠 배포 |
+| 김태련       | [깃허브](https://github.com/nojamcode)/[블로그](https://velog.io/@code-link)                                                                    | 유닛테스트                                                  |
+| 신영학       | [깃허브](https://github.com/yhshin0)/[블로그](https://nbkw.tistory.com/)                                                                        | 유닛테스트                               |
+| 임유라       | [깃허브](https://github.com/BangleCoding)/[블로그](https://banglecoding.github.io/)                                                             | 조회, 검색, 유닛 테스트, README 작성                  |
+| 이기범       | [깃허브](https://github.com/gibson-lee93)/[블로그](https://mysterious-laborer-518.notion.site/Gibson-s-Notion-2dd7f598fba64f1c9806cded5b4b83a0) | 유닛 테스트                                     |
+| 정진산       | [깃허브](https://github.com/chinsanchung)/[블로그](https://chinsanchung.github.io/)                                                             | 조회, 검색, 유닛 테스트                     |
 
 ## 개발 환경
 
