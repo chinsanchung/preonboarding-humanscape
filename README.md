@@ -125,12 +125,9 @@ Heroku를 이용해 배포를 진행했으며, 사이트의 주소는 [https://p
 
 ## 테스트
 
-<!-- TODO: jest  스크린샷 첨부-->
+![image](https://user-images.githubusercontent.com/42320464/142014646-10451a39-ba63-427f-81b2-82258b187967.png)
 
 ## 폴더 구조
-
-<!-- TODO: 폴더 구조 스크린샷 첨부 -->
-
 ```bash
 +---.github
 |       PULL_REQUEST_TEMPLATE.md
