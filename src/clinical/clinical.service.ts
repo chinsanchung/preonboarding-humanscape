@@ -5,6 +5,7 @@ import * as xml2json from 'xml2json-light';
 import * as moment from 'moment-timezone';
 
 import { ClinicalRepository } from './clinical.repository';
+import { QueryDto } from './dto/Query.dto';
 import { StepService } from '../step/step.service';
 import { Clinical } from './entities/clinical.entity';
 
@@ -16,6 +17,12 @@ export class ClinicalService {
     private httpService: HttpService,
     private stepService: StepService,
   ) {}
+
+  async getListClinical(
+    query: QueryDto,
+  ): Promise<{ data: Clinical[]; count: number }> {
+    return await this.clinicalRepository.getListClinical(query);
+  }
 
   async getAPIData(numOfRows, pageNo) {
     let url =
