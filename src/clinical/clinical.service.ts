@@ -1,6 +1,7 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Cron } from '@nestjs/schedule';
 import * as xml2json from 'xml2json-light';
 import * as moment from 'moment-timezone';
 
@@ -8,6 +9,8 @@ import { ClinicalRepository } from './clinical.repository';
 import { QueryDto } from './dto/Query.dto';
 import { StepService } from '../step/step.service';
 import { Clinical } from './entities/clinical.entity';
+import { Step } from '../step/entities/step.entity';
+import { CLINICAL_CONSTANT } from './clinical.constants';
 
 @Injectable()
 export class ClinicalService {
@@ -24,14 +27,14 @@ export class ClinicalService {
     return await this.clinicalRepository.getListClinical(query);
   }
 
-  async getAPIData(numOfRows, pageNo) {
+  private async getAPIData(pageNo, start = 0): Promise<Clinical[]> {
     let url =
       'http://apis.data.go.kr/1470000/MdcinClincTestInfoService/getMdcinClincTestInfoList';
     url += '?' + `ServiceKey=${process.env.SERVICE_KEY}`;
-    url += '&' + `numOfRows=${numOfRows}`;
+    url += '&' + `numOfRows=${CLINICAL_CONSTANT.NUM_OF_ROWS}`;
     url += '&' + `pageNo=${pageNo}`;
 
-    const data = this.httpService
+    return this.httpService
       .get(url)
       .toPromise()
       .then(async (axiosResponse) => {
@@ -43,50 +46,46 @@ export class ClinicalService {
         }
 
         // DB에 insert
-        for (let i = 0; i < items.length; i++) {
+        for (let i = start; i < items.length; i++) {
           await this.createClinical(items[i]);
         }
 
         return items;
       });
-    return data;
   }
 
-  async createClinical(clinical) {
-    //KST to UTC
-    const KSTApprovalTime = new Date(clinical.APPROVAL_TIME).getTime();
-    const modifiedApprovalTime = moment(KSTApprovalTime).format(
-      'YYYY-MM-DD HH:mm:ss',
-    );
-    clinical.APPROVAL_TIME = modifiedApprovalTime;
+  private async createClinical(clinical): Promise<Clinical> {
+    clinical.APPROVAL_TIME = this.convertKstToUtc(clinical.APPROVAL_TIME);
 
-    if (Object.keys(clinical.CLINIC_STEP_NAME).length === 0) {
-      clinical.CLINIC_STEP_NAME = '기타';
-    }
+    const step = await this.getStep(clinical.CLINIC_STEP_NAME);
 
-    let step = await this.stepService.findOneByName(clinical.CLINIC_STEP_NAME);
-    if (!step) {
-      step = await this.stepService.createStep({
-        name: clinical.CLINIC_STEP_NAME,
-      });
-    }
     return await this.clinicalRepository.save({ ...clinical, step });
   }
 
-  // 초기 데이터 입력
-  async enterInitialData() {
-    let pageNo = 1;
-    const numOfRows = 100;
-
-    console.log('[ClinicalService enterInitialData] start');
-    // API에서 페이지별 데이터를 가져옴
-    let data = await this.getAPIData(numOfRows, pageNo);
-    // API에서 빈 페이지를 가져오면 while 종료
-    while (data) {
-      pageNo++;
-      data = await this.getAPIData(numOfRows, pageNo);
+  private async getStep(clinicStepName): Promise<Step> {
+    // api의 CLINIC_STEP_NAME 이 존재 하지않을 경우 '기타' 로 등록
+    if (clinicStepName === '') {
+      clinicStepName = '기타';
     }
-    console.log('[ClinicalService enterInitialData] end');
+
+    let step = await this.stepService.findOneByName(clinicStepName);
+    if (!step) {
+      step = await this.stepService.createStep({
+        name: clinicStepName,
+      });
+    }
+
+    return step;
+  }
+
+  //KST to UTC
+  private convertKstToUtc(time): string {
+    const KSTApprovalTime = new Date(time).getTime();
+    const modifiedApprovalTime = moment(KSTApprovalTime).format(
+      'YYYY-MM-DD HH:mm:ss',
+    );
+
+    return modifiedApprovalTime;
   }
 
   async findOneClinical(id: number): Promise<Clinical> {
@@ -95,5 +94,43 @@ export class ClinicalService {
       throw new NotFoundException('유효한 임상 번호가 아닙니다.');
     }
     return result;
+  }
+
+  // 매주 월~토요일 0시 0분 0초에 배치 작업 수행
+  @Cron('0 0 0 * * 1-6')
+  async batchData(): Promise<void> {
+    // api에서 데이터를 가져온다 totalCount를 읽는다
+    const apiTotalCount = await this.getApiTotalCount();
+    // db clinical 테이블 전체 데이터갯수를 가져온다
+    const dbTotalCount = await this.clinicalRepository.count();
+
+    // api에서 가져온 totalCount가 clinical 테이블 전체 데이터 갯수보다 많은 경우 현재 테이블 로우 에서 끝까지 db에 넣는다
+    if (apiTotalCount > dbTotalCount) {
+      const start = dbTotalCount % CLINICAL_CONSTANT.NUM_OF_ROWS;
+      let pageNo = Math.floor(dbTotalCount / CLINICAL_CONSTANT.NUM_OF_ROWS) + 1;
+
+      let data = await this.getAPIData(pageNo, start);
+      // API에서 빈 페이지를 가져오면 while 종료
+      while (data) {
+        pageNo++;
+        data = await this.getAPIData(pageNo);
+      }
+    }
+  }
+
+  private getApiTotalCount(): Promise<number> {
+    let url =
+      'http://apis.data.go.kr/1470000/MdcinClincTestInfoService/getMdcinClincTestInfoList';
+    url += '?' + `ServiceKey=${process.env.SERVICE_KEY}`;
+    url += '&' + `numOfRows=${1}`;
+    url += '&' + `pageNo=${1}`;
+
+    return this.httpService
+      .get(url)
+      .toPromise()
+      .then(async (axiosResponse) => {
+        const jsonResponse = xml2json.xml2json(axiosResponse.data);
+        return jsonResponse.response.body.totalCount;
+      });
   }
 }
