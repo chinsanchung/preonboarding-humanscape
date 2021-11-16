@@ -1,5 +1,6 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { ClinicalService } from './clinical.service';
+import { Clinical } from './entities/clinical.entity';
 
 @Controller('clinical')
 export class ClinicalController {
@@ -12,4 +13,9 @@ export class ClinicalController {
     return data;
   }
   ///////////
+
+  @Get(':id')
+  async findOneClinical(@Param('id') id: string): Promise<Clinical> {
+    return this.clinicalService.findOneClinical(Number(id));
+  }
 }

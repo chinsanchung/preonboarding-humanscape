@@ -1,11 +1,12 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as xml2json from 'xml2json';
 import * as moment from 'moment-timezone';
 
 import { ClinicalRepository } from './clinical.repository';
 import { StepService } from '../step/step.service';
+import { Clinical } from './entities/clinical.entity';
 
 @Injectable()
 export class ClinicalService {
@@ -79,5 +80,13 @@ export class ClinicalService {
       data = await this.getAPIData(numOfRows, pageNo);
     }
     console.log('[ClinicalService enterInitialData] end');
+  }
+
+  async findOneClinical(id: number): Promise<Clinical> {
+    const result = await this.clinicalRepository.findOne(id);
+    if (!result) {
+      throw new NotFoundException('유효한 임상 번호가 아닙니다.');
+    }
+    return result;
   }
 }
