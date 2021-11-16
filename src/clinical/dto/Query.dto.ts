@@ -24,4 +24,8 @@ export class QueryDto {
   @IsString()
   @IsOptional()
   CLINIC_EXAM_TITLE: string;
+
+  @IsString()
+  @IsOptional()
+  step: string;
 }

@@ -1,5 +1,11 @@
 import { addHours, set, subDays, subHours } from 'date-fns';
-import { Between, EntityRepository, Like, Repository } from 'typeorm';
+import {
+  Between,
+  EntityRepository,
+  Like,
+  MoreThanOrEqual,
+  Repository,
+} from 'typeorm';
 import { QueryDto } from './dto/Query.dto';
 import { Clinical } from './entities/clinical.entity';
 
@@ -8,7 +14,7 @@ export class ClinicalRepository extends Repository<Clinical> {
   async getListClinical(
     query: QueryDto,
   ): Promise<{ data: Clinical[]; count: number }> {
-    const limit = 5;
+    const limit = 10;
     const offset = query.page ? (Number(query.page) - 1) * limit : 0;
     const conditions = [
       'GOODS_NAME',
@@ -23,16 +29,22 @@ export class ClinicalRepository extends Repository<Clinical> {
       }
     });
 
+    if (query.step) {
+      Object.assign(whereOption, {
+        step: { name: Like(`%${query.step}%`) },
+      });
+    }
+
     if (query.APPROVAL_TIME) {
       Object.assign(whereOption, {
         APPROVAL_TIME: Between(
-          subHours(new Date(query.APPROVAL_TIME), 9).toISOString(),
-          addHours(new Date(query.APPROVAL_TIME), 15).toISOString(),
+          subDays(subHours(new Date(query.APPROVAL_TIME), 9), 1).toISOString(),
+          subDays(addHours(new Date(query.APPROVAL_TIME), 15), 1).toISOString(),
         ),
       });
     } else {
       Object.assign(whereOption, {
-        APPROVAL_TIME: Between(
+        APPROVAL_TIME: MoreThanOrEqual(
           subDays(
             set(new Date(), {
               hours: 0,
@@ -42,21 +54,15 @@ export class ClinicalRepository extends Repository<Clinical> {
             }),
             6,
           ).toISOString(),
-          set(new Date(), {
-            hours: 24,
-            minutes: 0,
-            seconds: 0,
-            milliseconds: 0,
-          }).toISOString(),
         ),
       });
     }
-
     const [data, count] = await this.findAndCount({
       where: whereOption,
+      relations: ['step'],
       skip: offset,
       take: limit,
     });
-    return { data, count };
+    return { count, data };
   }
 }
