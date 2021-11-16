@@ -1,7 +1,7 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import * as xml2json from 'xml2json';
+import * as xml2json from 'xml2json-light';
 import * as moment from 'moment-timezone';
 
 import { ClinicalRepository } from './clinical.repository';
