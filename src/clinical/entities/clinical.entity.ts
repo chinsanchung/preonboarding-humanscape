@@ -19,6 +19,6 @@ export class Clinical extends CoreEntity {
   @Column()
   APPROVAL_TIME: Date;
 
-  @ManyToOne((_type) => Step, (step) => step.clinicals)
+  @ManyToOne((_type) => Step, (step) => step.clinicals, { eager: true })
   step: Step;
 }
