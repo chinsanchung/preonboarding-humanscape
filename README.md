@@ -44,14 +44,14 @@
 
 ## 조원
 
-| 이름         | 외부링크                                                                                                                                        | 담당 기능                                                               |
-| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| 이현준(조장) | [깃허브](https://github.com/lhj0621)/[블로그](https://supiz.tistory.com/)                                                                       | 총괄, 조회, 검색, 유닛 테스트, 헤로쿠 배포 |
-| 김태련       | [깃허브](https://github.com/nojamcode)/[블로그](https://velog.io/@code-link)                                                                    | 유닛테스트                                                  |
-| 신영학       | [깃허브](https://github.com/yhshin0)/[블로그](https://nbkw.tistory.com/)                                                                        | 유닛테스트                               |
-| 임유라       | [깃허브](https://github.com/BangleCoding)/[블로그](https://banglecoding.github.io/)                                                             | 조회, 검색, 유닛 테스트, README 작성                  |
-| 이기범       | [깃허브](https://github.com/gibson-lee93)/[블로그](https://mysterious-laborer-518.notion.site/Gibson-s-Notion-2dd7f598fba64f1c9806cded5b4b83a0) | 유닛 테스트                                     |
-| 정진산       | [깃허브](https://github.com/chinsanchung)/[블로그](https://chinsanchung.github.io/)                                                             | 조회, 검색, 유닛 테스트                     |
+| 이름         | 외부링크                                                                                                                                        | 담당 기능                                                                                                     |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| 이현준(조장) | [깃허브](https://github.com/lhj0621)/[블로그](https://supiz.tistory.com/)                                                                       | 총괄, 임상 정보 상세 조회, 임상 정보 목록 조회(검색, 페이지네이션), 임상 정보 조회의 유닛 테스트, 헤로쿠 배포 |
+| 김태련       | [깃허브](https://github.com/nojamcode)/[블로그](https://velog.io/@code-link)                                                                    | 유닛테스트                                                                                                    |
+| 신영학       | [깃허브](https://github.com/yhshin0)/[블로그](https://nbkw.tistory.com/)                                                                        | 유닛테스트                                                                                                    |
+| 임유라       | [깃허브](https://github.com/BangleCoding)/[블로그](https://banglecoding.github.io/)                                                             | 임상 정보 상세 조회, 임상 정보 목록 조회(검색, 페이지네이션), 임상 정보 조회의 유닛 테스트, README 작성       |
+| 이기범       | [깃허브](https://github.com/gibson-lee93)/[블로그](https://mysterious-laborer-518.notion.site/Gibson-s-Notion-2dd7f598fba64f1c9806cded5b4b83a0) | 유닛 테스트                                                                                                   |
+| 정진산       | [깃허브](https://github.com/chinsanchung)/[블로그](https://chinsanchung.github.io/)                                                             | 임상 정보 상세 조회, 임상 정보 목록 조회(검색, 페이지네이션), 임상 정보 조회의 유닛 테스트                    |
 
 ## 개발 환경
 
@@ -61,7 +61,7 @@
 
 - 데이터베이스: SQLite3
 
-- 라이브러리: typeorm, date-fns, class-validator, class-transformer, moment
+- 라이브러리: typeorm, date-fns, class-validator, class-transformer, moment-timezone, xml2json-light
 
 - 사용 API : [식품의약품안전처\_의약품 임상시험 정보](https://www.data.go.kr/data/15056835/openapi.do)
 
@@ -83,8 +83,8 @@
 ### 초기 데이터 일괄 저장
 
 - [식품의약품안전처\_의약품 임상시험 정보](https://www.data.go.kr/data/15056835/openapi.do)에서 가져온 임상정보 데이터를 데이터베이스에 입력합니다.
-- API의 response 값은 XML 형태로 반환되므로 이를 json으로 바꿔주기 위해 xml2json 패키지를 사용했습니다.
-- ** API의 승인 시간은 한국기준시각으로 적용되어 있다고 판단해 moment.js 라이브러리를 통해 UTC로 변환했습니다. **
+- API의 response 값은 XML 형태로 반환되므로 이를 json으로 바꿔주기 위해 [xml2json-light](https://www.npmjs.com/package/xml2json-light?activeTab=readme) 패키지를 사용했습니다.
+- ** API의 승인 시간은 한국기준시각으로 적용되어 있다고 판단해 [moment-timezone](https://www.npmjs.com/package/moment-timezone) 라이브러리를 통해 UTC로 변환했습니다. **
 
 ### 스케줄러 (배치 파일 실행) 기능
 
