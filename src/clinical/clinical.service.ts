@@ -1,10 +1,11 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ClinicalRepository } from './clinical.repository';
 import * as xml2json from 'xml2json';
 import * as moment from 'moment-timezone';
-import { StepService } from 'src/step/step.service';
+
+import { ClinicalRepository } from './clinical.repository';
+import { StepService } from '../step/step.service';
 
 @Injectable()
 export class ClinicalService {
@@ -44,6 +45,7 @@ export class ClinicalService {
   }
 
   async createClinical(clinical) {
+    //KST to UTC
     const KSTApprovalTime = new Date(clinical.APPROVAL_TIME).getTime();
     const modifiedApprovalTime = moment(KSTApprovalTime).format(
       'YYYY-MM-DD HH:mm:ss',
