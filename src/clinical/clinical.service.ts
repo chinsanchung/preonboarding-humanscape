@@ -28,7 +28,7 @@ export class ClinicalService {
       .get(url)
       .toPromise()
       .then(async (axiosResponse) => {
-        const jsonResponse = JSON.parse(xml2json.toJson(axiosResponse.data));
+        const jsonResponse = xml2json.xml2json(axiosResponse.data);
         const items = jsonResponse.response.body.items.item; // 임상 실험 데이터 배열
 
         if (!items) {
