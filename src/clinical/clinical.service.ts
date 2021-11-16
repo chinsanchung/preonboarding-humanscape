@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ClinicalRepository } from './clinical.repository';
 import * as xml2json from 'xml2json';
+import * as moment from 'moment-timezone';
 
 @Injectable()
 export class ClinicalService {
@@ -18,7 +19,6 @@ export class ClinicalService {
     url += '?' + `ServiceKey=${process.env.SERVICE_KEY}`;
     url += '&' + `numOfRows=${numOfRows}`;
     url += '&' + `pageNo=${pageNo}`;
-    console.log(url);
 
     const data = this.httpService
       .get(url)
@@ -42,19 +42,24 @@ export class ClinicalService {
   }
 
   async createClinical(clinical) {
+    const KSTApprovalTime = new Date(clinical.APPROVAL_TIME).getTime();
+    const modifiedApprovalTime = moment(KSTApprovalTime).format(
+      'YYYY-MM-DD HH:mm:ss',
+    );
+    clinical.APPROVAL_TIME = modifiedApprovalTime;
     return await this.clinicalRepository.save({ ...clinical });
   }
 
   // 초기 데이터 입력
   async enterInitialData() {
-    let pageNo = 1;
+    let pageNo = 94;
     const numOfRows = 100;
 
     // API에서 페이지별 데이터를 가져옴
     let data = await this.getAPIData(numOfRows, pageNo);
+    console.log(data);
     // API에서 빈 페이지를 가져오면 while 종료
     while (data) {
-      console.log(pageNo);
       pageNo++;
       data = await this.getAPIData(numOfRows, pageNo);
     }
