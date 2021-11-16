@@ -84,19 +84,19 @@
 
 - [식품의약품안전처\_의약품 임상시험 정보](https://www.data.go.kr/data/15056835/openapi.do)에서 가져온 임상정보 데이터를 데이터베이스에 입력합니다.
 - API의 response 값은 XML 형태로 반환되므로 이를 json으로 바꿔주기 위해 [xml2json-light](https://www.npmjs.com/package/xml2json-light?activeTab=readme) 패키지를 사용했습니다.
-- ** API의 승인 시간은 한국기준시각으로 적용되어 있다고 판단해 [moment-timezone](https://www.npmjs.com/package/moment-timezone) 라이브러리를 통해 UTC로 변환했습니다. **
+- **API의 승인 시간은 한국기준시각으로 적용되어 있다고 판단해 [moment-timezone](https://www.npmjs.com/package/moment-timezone) 라이브러리를 통해 UTC로 변환했습니다.**
 
 ### 스케줄러 (배치 파일 실행) 기능
 
-- 배치 작업은 [cron](https://www.npmjs.com/package/@nestjs/schedule) 라이브러리를 사용했습니다.
-- 매 월~토요일 0시 00분 00초 에 배치가 실행되어 open api 에서 [axios](https://www.npmjs.com/package/@nestjs/axios) 라이브러리를 사용해서 데이터를 받아옵니다.
-- 받아온 데이터에서 totalCount와 현재 DB에 저장된 totalCount와 비교해서 api-totalCount가 크다면 (api-totalCount - db-totalCount)만큼 추가된 데이터이기 때문에 db에 저장합니다.
+- 배치 작업은 [@nestjs/schedule](https://www.npmjs.com/package/@nestjs/schedule) 라이브러리를 사용했습니다.
+- 매주 월~토요일 0시 00분 00초 에 배치가 실행되어 open api 에서 데이터를 가져오며, [axios](https://www.npmjs.com/package/@nestjs/axios) 라이브러리를 사용해서 관련 정보를 가져옵니다.
+- 가져온 totalCount와 현재 DB에 저장된 row갯수를 비교하여 api의 totalCount가 큰 경우에만 데이터를 추가로 호출합니다. 이때 totalCount와 row갯수 차이만큼 데이터를 요청하여 가져옵니다.
 
 ### 전체 리스트 조회 및 검색 기능
 
 - 스케줄러 기능을 통해 저장된 임상정보 데이터를 조회합니다.
 - 상품명, 연구기관 명, 승인 시간, 임상단계 정보 검색이 가능합니다.
-- **승인 시간의 경우 [date-fns](https://www.npmjs.com/package/date-fns) 라이브러리를 이용하여 시간을 UTC로 변환하여 검색합니다. **
+- **승인 시간의 경우 [date-fns](https://www.npmjs.com/package/date-fns) 라이브러리를 이용하여 시간을 UTC로 변환하여 검색합니다.**
 
 ## API 문서
 
