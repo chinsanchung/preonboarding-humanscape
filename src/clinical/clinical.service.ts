@@ -64,7 +64,7 @@ export class ClinicalService {
 
   async getStep(clinicStepName): Promise<Step> {
     // api의 CLINIC_STEP_NAME 이 존재 하지않을 경우 '기타' 로 등록
-    if (Object.keys(clinicStepName).length === 0) {
+    if (clinicStepName === '') {
       clinicStepName = '기타';
     }
 
