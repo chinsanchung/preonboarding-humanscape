@@ -106,7 +106,7 @@ API 테스트를 위한 방법을 [POSTMAN document](<!--TODO: 휴먼스케이�
 
 <!-- TODO -->
 
-Heroku를 이용해 배포를 진행했으며, 사이트의 주소는 [<!-- TODO : 사이트 주소 업로드-->]() 입니다.
+Heroku를 이용해 배포를 진행했으며, 사이트의 주소는 [https://pocky-humanscape-subject.herokuapp.com/](https://pocky-humanscape-subject.herokuapp.com/) 입니다.
 
 ## 설치 및 실행 방법
 
