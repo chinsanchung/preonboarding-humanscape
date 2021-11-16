@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ClinicalRepository } from './clinical.repository';
 import * as xml2json from 'xml2json';
 import * as moment from 'moment-timezone';
+import { StepService } from 'src/step/step.service';
 
 @Injectable()
 export class ClinicalService {
@@ -11,6 +12,7 @@ export class ClinicalService {
     @InjectRepository(ClinicalRepository)
     private readonly clinicalRepository: ClinicalRepository,
     private httpService: HttpService,
+    private stepService: StepService,
   ) {}
 
   async getAPIData(numOfRows, pageNo) {
@@ -47,21 +49,33 @@ export class ClinicalService {
       'YYYY-MM-DD HH:mm:ss',
     );
     clinical.APPROVAL_TIME = modifiedApprovalTime;
-    return await this.clinicalRepository.save({ ...clinical });
+
+    if (Object.keys(clinical.CLINIC_STEP_NAME).length === 0) {
+      clinical.CLINIC_STEP_NAME = '기타';
+    }
+
+    let step = await this.stepService.findOneByName(clinical.CLINIC_STEP_NAME);
+    if (!step) {
+      step = await this.stepService.createStep({
+        name: clinical.CLINIC_STEP_NAME,
+      });
+    }
+    return await this.clinicalRepository.save({ ...clinical, step });
   }
 
   // 초기 데이터 입력
   async enterInitialData() {
-    let pageNo = 94;
+    let pageNo = 1;
     const numOfRows = 100;
 
+    console.log('[ClinicalService enterInitialData] start');
     // API에서 페이지별 데이터를 가져옴
     let data = await this.getAPIData(numOfRows, pageNo);
-    console.log(data);
     // API에서 빈 페이지를 가져오면 while 종료
     while (data) {
       pageNo++;
       data = await this.getAPIData(numOfRows, pageNo);
     }
+    console.log('[ClinicalService enterInitialData] end');
   }
 }

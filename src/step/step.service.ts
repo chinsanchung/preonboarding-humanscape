@@ -16,17 +16,16 @@ export class StepService {
   ) {}
 
   async createStep(createStepDto: CreateStepDto): Promise<Step> {
-    const { name } = createStepDto;
-    const foundStep = await this.stepRepository.findOne({ name });
-    if (foundStep) {
-      throw new ConflictException('이미 존재하는 값입니다.');
-    }
-
     try {
-      const step = this.stepRepository.create({ name });
-      return await this.stepRepository.save(step);
+      return await this.stepRepository.save(
+        this.stepRepository.create({ ...createStepDto }),
+      );
     } catch (error) {
       throw new InternalServerErrorException();
     }
+  }
+
+  async findOneByName(name: string): Promise<Step> {
+    return await this.stepRepository.findOne({ name });
   }
 }
