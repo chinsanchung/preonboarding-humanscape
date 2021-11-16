@@ -7,6 +7,6 @@ export class Step extends CoreEntity {
   @Column({ unique: true })
   name: string;
 
-  @OneToMany((_type) => Clinical, (clinical) => clinical.step)
+  @OneToMany((_type) => Clinical, (clinical) => clinical.step, { eager: false })
   clinicals: Clinical[];
 }
