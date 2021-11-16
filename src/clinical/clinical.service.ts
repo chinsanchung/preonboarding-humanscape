@@ -27,7 +27,7 @@ export class ClinicalService {
     return await this.clinicalRepository.getListClinical(query);
   }
 
-  private async getAPIData(pageNo, start = 0): Promise<Clinical[]> {
+  async getAPIData(pageNo, start = 0): Promise<Clinical[]> {
     let url =
       'http://apis.data.go.kr/1470000/MdcinClincTestInfoService/getMdcinClincTestInfoList';
     url += '?' + `ServiceKey=${process.env.SERVICE_KEY}`;
@@ -54,7 +54,7 @@ export class ClinicalService {
       });
   }
 
-  private async createClinical(clinical): Promise<Clinical> {
+  async createClinical(clinical): Promise<Clinical> {
     clinical.APPROVAL_TIME = this.convertKstToUtc(clinical.APPROVAL_TIME);
 
     const step = await this.getStep(clinical.CLINIC_STEP_NAME);
@@ -62,7 +62,7 @@ export class ClinicalService {
     return await this.clinicalRepository.save({ ...clinical, step });
   }
 
-  private async getStep(clinicStepName): Promise<Step> {
+  async getStep(clinicStepName): Promise<Step> {
     // api의 CLINIC_STEP_NAME 이 존재 하지않을 경우 '기타' 로 등록
     if (clinicStepName === '') {
       clinicStepName = '기타';
@@ -79,7 +79,7 @@ export class ClinicalService {
   }
 
   //KST to UTC
-  private convertKstToUtc(time): string {
+  convertKstToUtc(time): string {
     const KSTApprovalTime = new Date(time).getTime();
     const modifiedApprovalTime = moment(KSTApprovalTime).format(
       'YYYY-MM-DD HH:mm:ss',
@@ -118,7 +118,7 @@ export class ClinicalService {
     }
   }
 
-  private getApiTotalCount(): Promise<number> {
+  getApiTotalCount(): Promise<number> {
     let url =
       'http://apis.data.go.kr/1470000/MdcinClincTestInfoService/getMdcinClincTestInfoList';
     url += '?' + `ServiceKey=${process.env.SERVICE_KEY}`;
