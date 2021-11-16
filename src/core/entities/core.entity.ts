@@ -5,5 +5,5 @@ export class CoreEntity {
   id: number;
 
   @CreateDateColumn()
-  createdAt: Date;
+  created_At: Date;
 }
