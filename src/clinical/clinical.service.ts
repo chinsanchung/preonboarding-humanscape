@@ -7,6 +7,7 @@ import * as moment from 'moment-timezone';
 import { ClinicalRepository } from './clinical.repository';
 import { StepService } from '../step/step.service';
 import { Clinical } from './entities/clinical.entity';
+import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class ClinicalService {
@@ -17,7 +18,7 @@ export class ClinicalService {
     private stepService: StepService,
   ) {}
 
-  async getAPIData(numOfRows, pageNo) {
+  async getAPIData(numOfRows, pageNo, start = 0) {
     let url =
       'http://apis.data.go.kr/1470000/MdcinClincTestInfoService/getMdcinClincTestInfoList';
     url += '?' + `ServiceKey=${process.env.SERVICE_KEY}`;
@@ -36,7 +37,7 @@ export class ClinicalService {
         }
 
         // DB에 insert
-        for (let i = 0; i < items.length; i++) {
+        for (let i = start; i < items.length; i++) {
           await this.createClinical(items[i]);
         }
 
@@ -88,5 +89,45 @@ export class ClinicalService {
       throw new NotFoundException('유효한 임상 번호가 아닙니다.');
     }
     return result;
+  }
+
+  // 매주 월~토요일 0시 0분 0초에 배치 작업 수행
+  @Cron('0 0 0 * * 1-6')
+  async batchData() {
+    // api에서 데이터를 가져온다 totalCount를 읽는다
+    const apiTotalCount = await this.getApiTotalCount();
+
+    // db clinical 테이블 전체 데이터갯수를 가져온다
+    const dbTotalCount = await this.clinicalRepository.count();
+
+    // api에서 가져온 totalCount가 clinical 테이블 전체 데이터 갯수보다 많은 경우 현재 테이블 로우 에서 끝까지 db에 넣는다
+    if (apiTotalCount > dbTotalCount) {
+      const start = dbTotalCount % 100;
+      let pageNo = Math.floor(dbTotalCount / 100) + 1;
+
+      let data = await this.getAPIData(100, pageNo, start);
+      // API에서 빈 페이지를 가져오면 while 종료
+      while (data) {
+        pageNo++;
+        data = await this.getAPIData(100, pageNo);
+      }
+    }
+  }
+
+  getApiTotalCount() {
+    let url =
+      'http://apis.data.go.kr/1470000/MdcinClincTestInfoService/getMdcinClincTestInfoList';
+    url += '?' + `ServiceKey=${process.env.SERVICE_KEY}`;
+    url += '&' + `numOfRows=${1}`;
+    url += '&' + `pageNo=${1}`;
+
+    const data = this.httpService
+      .get(url)
+      .toPromise()
+      .then(async (axiosResponse) => {
+        const jsonResponse = xml2json.xml2json(axiosResponse.data);
+        return jsonResponse.response.body.totalCount;
+      });
+    return data;
   }
 }
