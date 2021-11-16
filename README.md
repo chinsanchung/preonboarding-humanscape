@@ -100,7 +100,7 @@
 
 ## API 문서
 
-API 테스트를 위한 방법을 [POSTMAN document](<!--TODO: 휴먼스케이프  API URL 업로드 -->)에서 확인하실 수 있습니다.
+API 테스트를 위한 방법을 [POSTMAN document](https://documenter.getpostman.com/view/15323948/UVCB94M2)에서 확인하실 수 있습니다.
 
 ## 배포
 
@@ -132,5 +132,54 @@ Heroku를 이용해 배포를 진행했으며, 사이트의 주소는 [https://p
 <!-- TODO: 폴더 구조 스크린샷 첨부 -->
 
 ```bash
-
++---.github
+|       PULL_REQUEST_TEMPLATE.md
+|
++---src
+|   |   app.controller.spec.ts
+|   |   app.controller.ts
+|   |   app.module.ts
+|   |   app.service.ts
+|   |   main.ts
+|   |
+|   +---clinical
+|   |   |   clinical.constants.ts
+|   |   |   clinical.controller.spec.ts
+|   |   |   clinical.controller.ts
+|   |   |   clinical.module.ts
+|   |   |   clinical.repository.ts
+|   |   |   clinical.service.spec.ts
+|   |   |   clinical.service.ts
+|   |   |
+|   |   +---dto
+|   |   |       Query.dto.ts
+|   |   |
+|   |   \---entities
+|   |           clinical.entity.ts
+|   |
+|   +---core
+|   |   \---entities
+|   |           core.entity.ts
+|   |
+|   \---step
+|       |   step.controller.ts
+|       |   step.module.ts
+|       |   step.service.ts
+|       |
+|       +---dto
+|       |       create-step.dto.ts
+|       |       update-step.dto.ts
+|       |
+|       \---entities
+|               step.entity.ts
+|- .eslintrc.js
+|- .gitignore
+|- .prettierrc
+|- nest-cli.json
+|- package-lock.json
+|- package.json
+|- Procfile
+|- README.md
+|- tsconfig.build.json
+|- tsconfig.json
 ```
