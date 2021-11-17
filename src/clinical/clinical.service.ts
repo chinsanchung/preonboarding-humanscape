@@ -1,7 +1,7 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Cron } from '@nestjs/schedule';
+import { Cron, Timeout } from '@nestjs/schedule';
 import * as xml2json from 'xml2json-light';
 import * as moment from 'moment-timezone';
 
@@ -115,6 +115,19 @@ export class ClinicalService {
         pageNo++;
         data = await this.getAPIData(pageNo);
       }
+    }
+  }
+
+  // 초기 데이터 입력
+  @Timeout(1000)
+  async enterInitialData(): Promise<void> {
+    let pageNo = 1;
+
+    let data = await this.getAPIData(pageNo, 0);
+    // API에서 빈 페이지를 가져오면 while 종료
+    while (data) {
+      pageNo++;
+      data = await this.getAPIData(pageNo);
     }
   }
 
