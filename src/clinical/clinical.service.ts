@@ -3,8 +3,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Cron, Timeout } from '@nestjs/schedule';
 import * as xml2json from 'xml2json-light';
-import * as moment from 'moment-timezone';
-
+import { set } from 'date-fns';
 import { ClinicalRepository } from './clinical.repository';
 import { QueryDto } from './dto/Query.dto';
 import { StepService } from '../step/step.service';
@@ -55,7 +54,12 @@ export class ClinicalService {
   }
 
   async createClinical(clinical): Promise<Clinical> {
-    clinical.APPROVAL_TIME = this.convertKstToUtc(clinical.APPROVAL_TIME);
+    clinical.APPROVAL_TIME = set(new Date(clinical.APPROVAL_TIME), {
+      hours: 0,
+      minutes: 0,
+      seconds: 0,
+      milliseconds: 0,
+    });
 
     const step = await this.getStep(clinical.CLINIC_STEP_NAME);
 
@@ -76,16 +80,6 @@ export class ClinicalService {
     }
 
     return step;
-  }
-
-  //KST to UTC
-  convertKstToUtc(time): string {
-    const KSTApprovalTime = new Date(time).getTime();
-    const modifiedApprovalTime = moment(KSTApprovalTime).format(
-      'YYYY-MM-DD HH:mm:ss',
-    );
-
-    return modifiedApprovalTime;
   }
 
   async findOneClinical(id: number): Promise<Clinical> {
