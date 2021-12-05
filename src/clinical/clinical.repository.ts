@@ -1,4 +1,4 @@
-import { addHours, set, subDays, subHours } from 'date-fns';
+import { set, subDays, add, subHours } from 'date-fns';
 import {
   Between,
   EntityRepository,
@@ -36,11 +36,18 @@ export class ClinicalRepository extends Repository<Clinical> {
     }
 
     if (query.APPROVAL_TIME) {
+      const UTCZeroApprovalTime = subHours(new Date(query.APPROVAL_TIME), 9);
+      const datePeriod = [
+        UTCZeroApprovalTime.toISOString(),
+        add(UTCZeroApprovalTime, {
+          hours: 23,
+          minutes: 59,
+          seconds: 59,
+        }).toISOString(),
+      ];
+
       Object.assign(whereOption, {
-        APPROVAL_TIME: Between(
-          subDays(subHours(new Date(query.APPROVAL_TIME), 9), 1).toISOString(),
-          subDays(addHours(new Date(query.APPROVAL_TIME), 15), 1).toISOString(),
-        ),
+        APPROVAL_TIME: Between(datePeriod[0], datePeriod[1]),
       });
     } else {
       Object.assign(whereOption, {

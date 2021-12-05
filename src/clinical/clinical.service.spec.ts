@@ -124,9 +124,6 @@ describe('ClinicalService', () => {
   describe('createClinical', () => {
     it('clinical 생성에 성공한다', async () => {
       expect.assertions(7);
-      jest
-        .spyOn(service, 'convertKstToUtc')
-        .mockReturnValue('2021-11-16 09:00:00');
       const stepId = 1;
       const stepName = '1상';
 
