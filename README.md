@@ -9,7 +9,7 @@
 1. 필수 요구 사항
 
 - 임상정보를 수집하는 batch task 를 제작합니다.
-  - 참고: [https://www.data.go.kr/data/3074271/fileData.do#/API 목록/GETuddi%3Acfc19dda-6f75-4c57-86a8-bb9c8b103887](https://www.data.go.kr/data/3074271/fileData.do#/API%20%EB%AA%A9%EB%A1%9D/GETuddi%3Acfc19dda-6f75-4c57-86a8-bb9c8b103887)
+  - 참고: [공공데이터의 질병관리청_임상연구 과제정보 데이터셋](https://www.data.go.kr/data/3074271/fileData.do#/API%20%EB%AA%A9%EB%A1%9D/GETuddi%3Acfc19dda-6f75-4c57-86a8-bb9c8b103887)
 - 수집한 임상정보에 대한 API 를 제작합니다.
   - 특정 임상정보 읽기(키 값은 자유)
 - 수집한 임상정보 리스트 API 를 제작합니다.
