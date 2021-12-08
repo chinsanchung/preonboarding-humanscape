@@ -9,7 +9,7 @@
 1. 필수 요구 사항
 
 - 임상정보를 수집하는 batch task 를 제작합니다.
-  - 참고: [공공데이터의 질병관리청_임상연구 과제정보 데이터셋](https://www.data.go.kr/data/3074271/fileData.do#/API%20%EB%AA%A9%EB%A1%9D/GETuddi%3Acfc19dda-6f75-4c57-86a8-bb9c8b103887)
+  - 참고: [공공데이터의 질병관리청\_임상연구 과제정보 데이터셋](https://www.data.go.kr/data/3074271/fileData.do#/API%20%EB%AA%A9%EB%A1%9D/GETuddi%3Acfc19dda-6f75-4c57-86a8-bb9c8b103887)
 - 수집한 임상정보에 대한 API 를 제작합니다.
   - 특정 임상정보 읽기(키 값은 자유)
 - 수집한 임상정보 리스트 API 를 제작합니다.
@@ -32,7 +32,7 @@
 
 - 언어: TypeScript
 - 데이터베이스: SQLite3
-- 사용 도구: NestJs, typeorm, passport, passport-local, passport-jwt, bcrypt, class-validator,moment-timezone, date-fns, xml2json-light, @nestjs/schedule, @nestjs/axios
+- 사용 도구: NestJs, typeorm, passport, passport-local, passport-jwt, bcrypt, class-validator, date-fns, xml2json-light, @nestjs/schedule, @nestjs/axios
 - 임상 정보 수집을 위해 [식품의약품안전처\_의약품 임상시험 정보](https://www.data.go.kr/data/15056835/openapi.do) API 를 사용했습니다.
 
 ## API 문서
@@ -153,8 +153,8 @@ if (query.APPROVAL_TIME) {
           seconds: 0,
           milliseconds: 0,
         }),
-        6
-      ).toISOString()
+        6,
+      ).toISOString(),
     ),
   });
 }
@@ -180,7 +180,7 @@ async function findOneClinical(id: number): Promise<Clinical> {
 }
 ```
 
-`findOne` 메소드를 이용해
+URI 의 파라미터로부터 얻은 아이디로 임상 정보를 조회합니다.
 
 ## 리펙토링
 
@@ -195,7 +195,7 @@ API 에서 제공하는 승인 시간은 "2012-02-28 00:00:00"으로 시, 분, �
 function convertKstToUtc(time): string {
   const KSTApprovalTime = new Date(time).getTime();
   const modifiedApprovalTime = moment(KSTApprovalTime).format(
-    'YYYY-MM-DD HH:mm:ss'
+    'YYYY-MM-DD HH:mm:ss',
   );
 
   return modifiedApprovalTime;
@@ -216,7 +216,7 @@ clinical.APPROVAL_TIME = set(new Date(clinical.APPROVAL_TIME), {
 - 빌드할 용량을 줄이고 시간을 절약하기 위해 moment-timezone 을 제거하고 date-fns 의 `set` 함수를 사용했습니다.
   - `set` 함수로 시, 분, 초를 설정할 수 있는데, UTC+0 시간대에 시, 분, 초를 모두 0으로 설정하여 저장하도록 수정했습니다.
 
-### 임상 정보를 조회할 때의 승인 시간 설정
+### 임상 정보 목록을 조회할 때의 승인 시간 설정
 
 [clinical.repository.ts](https://github.com/chinsanchung/preonboarding-humanscape/blob/master/src/clinical/clinical.repository.ts)에서의 리펙토링입니다.
 
@@ -229,7 +229,7 @@ clinical.APPROVAL_TIME = set(new Date(clinical.APPROVAL_TIME), {
 Object.assign(whereOption, {
   APPROVAL_TIME: Between(
     subDays(subHours(new Date(query.APPROVAL_TIME), 9), 1).toISOString(),
-    subDays(addHours(new Date(query.APPROVAL_TIME), 15), 1).toISOString()
+    subDays(addHours(new Date(query.APPROVAL_TIME), 15), 1).toISOString(),
   ),
 });
 ```
@@ -264,7 +264,7 @@ subDays(
     seconds: 0,
     milliseconds: 0,
   }),
-  6
+  6,
 ).toISOString();
 ```
 
