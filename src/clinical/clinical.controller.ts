@@ -19,7 +19,10 @@ export class ClinicalController {
   }
 
   @Post()
-  async getAllBatchDataForLocalTest(): Promise<void> {
-    return this.clinicalService.batchData();
+  async createAllDataForInitialSetting(): Promise<string> {
+    const result = await this.clinicalService.createAllDataForInitialSetting();
+    return result
+      ? '초기 데이터 저장에 성공했습니다.'
+      : '초기 데이터 저장에 실패했습니다.';
   }
 }
