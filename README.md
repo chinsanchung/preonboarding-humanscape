@@ -37,13 +37,13 @@
 
 ## API 문서
 
-포스트맨으로 작성한 [API 문서](https://documenter.getpostman.com/view/15323948/UVCB94M2)에서 상세한 내용을 확인하실 수 있습니다.
+포스트맨으로 작성한 [API 문서](https://documenter.getpostman.com/view/18317278/UVR4NVro)에서 상세한 내용을 확인하실 수 있습니다.
 
 ## 실행 방법
 
 1. `git clone` 으로 프로젝트를 가져온 후, `npm install` 으로 필요한 패키지를 설치합니다.
-2. [공공데이터포털](https://www.data.go.kr/) 에서 서비스 키를 발급받습니다.
-3. 루트 디렉토리에 .env 파일을 생성하고, `SERVICE_KEY`에 발급받은 서비스 키를 입력합니다.
+2. [식품의약품안전처\_의약품 임상시험 정보](https://www.data.go.kr/data/15056835/openapi.do)에 접속해 공공 데이터 사이트에 로그인을 한 후, 활용신청을 클릭해 일반 인증키를 발급받습니다.
+3. 루트 디렉토리에 .env 파일을 생성하고, `SERVICE_URL`은 사이트에 제시하는 요청 주소를, `SERVICE_KEY`에는 일반 인증키를 입력합니다.
 4. 개발 환경일 때는`npm run dev`으로, 배포 환경일 때는 `npm run build`으로 빌드한 후 `npm run start:prod`으로 실행합니다.
 5. POST `localhost:3000/clinical`을 실행해 임상 시험 정보를 in memory 데이터베이스에 저장하신 후에 조회 기능을 테스트하실 수 있습니다.
 
@@ -270,11 +270,65 @@ subDays(
 
 date-fns 의 `set` 함수로 변환한 값이 UTC+0 시간대로 변환하기에 수정하지 않았습니다.
 
-### 로컬 환경에서의 테스트를 위해 getAllBatchDataForLocalTest 메소드 작성
+### 로컬 환경에서의 테스트를 위해 createAllDataForInitialSetting 메소드 작성
 
-[clinical.controller.ts](https://github.com/chinsanchung/preonboarding-humanscape/blob/master/src/clinical/clinical.controller.ts)에서의 리펙토링입니다.
+[clinical.controller.ts](https://github.com/chinsanchung/preonboarding-humanscape/blob/master/src/clinical/clinical.controller.ts), [clinical.service.ts](https://github.com/chinsanchung/preonboarding-humanscape/blob/master/src/clinical/clinical.service.ts)에서의 리펙토링입니다.
 
-원래 의도는 @nestjs/schedule 으로 지정 시간에 데이터를 저장하는 방식이지만, 로컬 환경에서의 테스트를 위해 데이터를 직접 저장하는 API 를 따로 제작했습니다. `POST localhost:3000/clinical`으로 테스트를 위한 임상 시험 정보를 in memory 데이터베이스에 저장합니다.
+기존에는 서버를 실행하면 `@nest/schedule`을 이용해 10초 간격으로 데이터를 저장했습니다. 하지만 초기 데이터를 저장하는데 오랜 시간이 걸려 테스트를 수행할 준비가 됐는지 확인이 어려운 점, 그리고 직접 결과를 확인하는 것이 더 좋다고 생각해서 위의 기능을 제거하고 컨트롤러와 서비스에 `createAllDataForInitialSetting`메소드를 제작했습니다.
+
+POST `localhost:3000/clinical`으로 임상 시험 정보를 불러온 후 in memory 데이터베이스에 저장합니다.
+
+### process.env.SERVICE_URL 추가 및 env 파일의 데이터 검증
+
+[clinical.repository.ts](https://github.com/chinsanchung/preonboarding-humanscape/blob/master/src/clinical/clinical.repository.ts)에서의 리펙토링입니다.
+
+2021년 12월 10일, 테스트를 위해 애플리케이션을 실행했는데 공공 데이터 API의 요청 URL이 달라져서 에러가 발생했습니다. 요청 URL이 바뀌는 점을 감안하여, .env에 `SERVICE_URL`을 직접 입력해서 앞으로 URL이 바뀌더라도 대응할 수 있도록 했습니다.
+
+또한, .env 파일에 `SERVICE_URL`, `SERVICE_KEY`가 존재하는지를 [Joi](https://www.npmjs.com/package/joi)를 이용해 처음에 검증하는 과정을 거치도록 했습니다.
+
+### 헤로쿠의 서버 정지 대응하기
+
+[clinical.service.ts](https://github.com/chinsanchung/preonboarding-humanscape/blob/master/src/clinical/clinical.service.ts)에서의 리펙토링입니다.
+
+헤로쿠는 30분동안 요청이 없으면 서버를 정지 상태로 만들기 떄문에 매주 batch task 를 하기 어렵습니다. 그것을 해결하기 위해 우선 23시 50분에 헤로쿠 URL을 요청해 서버를 꺠우고, 24시에 batch task 를 실행하도록 했습니다.
+
+또한, 헤로쿠는 UTC+0 시간대를 사용하기 떄문에, `@nest/schedule`의 시간을 UTC+0 시간대로 설정했습니다.
+
+```typescript
+export class ClinicalService {
+  // 월 ~ 금요일 0시 0분 0초(한국 시간대)에 배치 작업 수행
+  @Cron('0 0 15 * * 1-6')
+  async batchData(): Promise<void> {
+    // api에서 데이터를 가져온다 totalCount를 읽는다
+    const apiTotalCount = await this.getApiTotalCount();
+    // db clinical 테이블 전체 데이터갯수를 가져온다
+    const dbTotalCount = await this.clinicalRepository.count();
+
+    // api에서 가져온 totalCount가 clinical 테이블 전체 데이터 갯수보다 많은 경우 현재 테이블 로우 에서 끝까지 db에 넣는다
+    if (apiTotalCount > dbTotalCount) {
+      const start = dbTotalCount % CLINICAL_CONSTANT.NUM_OF_ROWS;
+      let pageNo = Math.floor(dbTotalCount / CLINICAL_CONSTANT.NUM_OF_ROWS) + 1;
+
+      let data = await this.getAPIData(pageNo, start);
+      // API에서 빈 페이지를 가져오면 while 종료
+      while (data) {
+        pageNo++;
+        data = await this.getAPIData(pageNo);
+      }
+    }
+  }
+
+  @Cron('0 50 14 * * 1-6')
+  async awakeHerkuServer(): Promise<void> {
+    return this.httpService
+      .get('https://preonboarding-cardoc-api.herokuapp.com/')
+      .toPromise()
+      .then(() => {
+        return;
+      });
+  }
+}
+```
 
 ## 폴더 구조
 
