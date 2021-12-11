@@ -23,7 +23,10 @@ export class ClinicalService {
   async getListClinical(
     query: QueryDto,
   ): Promise<{ data: Clinical[]; count: number }> {
-    return await this.clinicalRepository.getListClinical(query);
+    return await this.clinicalRepository.getListClinical({
+      ...query,
+      NODE_ENV: process.env.NODE_ENV,
+    });
   }
 
   async findOneClinical(id: number): Promise<Clinical> {

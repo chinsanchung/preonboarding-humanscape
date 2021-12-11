@@ -29,3 +29,7 @@ export class QueryDto {
   @IsOptional()
   step?: string;
 }
+
+export class GetListRepositoryDto extends QueryDto {
+  NODE_ENV?: string | undefined;
+}

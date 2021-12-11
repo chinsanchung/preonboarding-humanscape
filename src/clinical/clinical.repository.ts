@@ -6,13 +6,13 @@ import {
   MoreThanOrEqual,
   Repository,
 } from 'typeorm';
-import { QueryDto } from './dto/Query.dto';
+import { GetListRepositoryDto } from './dto/Query.dto';
 import { Clinical } from './entities/clinical.entity';
 
 @EntityRepository(Clinical)
 export class ClinicalRepository extends Repository<Clinical> {
   async getListClinical(
-    query: QueryDto,
+    query: GetListRepositoryDto,
   ): Promise<{ data: Clinical[]; count: number }> {
     const limit = 10;
     const offset = query.page ? (Number(query.page) - 1) * limit : 0;
@@ -36,7 +36,10 @@ export class ClinicalRepository extends Repository<Clinical> {
     }
 
     if (query.APPROVAL_TIME) {
-      const UTCZeroApprovalTime = subHours(new Date(query.APPROVAL_TIME), 9);
+      let UTCZeroApprovalTime = new Date(query.APPROVAL_TIME);
+      if (query.NODE_ENV !== 'production') {
+        UTCZeroApprovalTime = subHours(UTCZeroApprovalTime, 9);
+      }
       const datePeriod = [
         UTCZeroApprovalTime.toISOString(),
         add(UTCZeroApprovalTime, {
