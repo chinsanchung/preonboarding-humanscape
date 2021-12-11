@@ -95,6 +95,10 @@ export class QueryDto {
   @IsOptional()
   step?: string;
 }
+
+export class GetListRepositoryDto extends QueryDto {
+  NODE_ENV?: string | undefined;
+}
 ```
 
 - page: 몇 페이지인지를 명시합니다. pagination 에 사용하며 필수 값입니다.
@@ -104,6 +108,7 @@ export class QueryDto {
 - APPLY_ENTP_NAME: 임상 시험의 신청자입니다. 선택 사항으로, 검색에 사용합니다.
 - CLINIC_EXAM_TITLE: 임상 시험의 제목입니다. 선택 사항으로, 검색에 사용합니다.
 - step: 임상 시험의 단계입니다. [의약품안전나라 임상시험정보검색](https://nedrug.mfds.go.kr/searchClinic)의 임상시험단계 항목의 값을 문자열로 입력합니다. 선택 사항으로, 검색에 사용합니다.
+- NODE_ENV: 배포 환경인지 여부를 확인합니다. 헤로쿠에 배포했을 경우, 승인 시간을 UTC+0 시간대로 변환하지 않습니다.
 
 #### 데이터베이스에 접근해 필요한 임상 정보를 조회합니다.
 
@@ -140,7 +145,10 @@ if (query.step) {
 
 ```typescript
 if (query.APPROVAL_TIME) {
-  const UTCZeroApprovalTime = subHours(new Date(query.APPROVAL_TIME), 9);
+  let UTCZeroApprovalTime = new Date(query.APPROVAL_TIME);
+  if (query.NODE_ENV !== 'production') {
+    UTCZeroApprovalTime = subHours(UTCZeroApprovalTime, 9);
+  }
   const datePeriod = [
     UTCZeroApprovalTime.toISOString(),
     add(UTCZeroApprovalTime, {
