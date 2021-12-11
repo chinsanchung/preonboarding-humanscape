@@ -145,9 +145,9 @@ export class ClinicalService {
   }
 
   @Cron('0 50 14 * * 1-6')
-  async awakeHerkuServer(): Promise<void> {
+  async awakeHerokuServer(): Promise<void> {
     return this.httpService
-      .get('https://preonboarding-cardoc-api.herokuapp.com/')
+      .get('https://preonboarding-humanscape-api.herokuapp.com')
       .toPromise()
       .then(() => {
         return;
