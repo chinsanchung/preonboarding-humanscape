@@ -1,6 +1,6 @@
 ## 프리온보딩 백엔드 과정 5번째 과제: 휴먼스케이프
 
-[휴먼스케이프](https://humanscape.io/kr/index.html)에서 제공해주신 API 설계 과제입니다. 헤로쿠를 이용해 배포했으며, 주소는 [https://preonboarding-cardoc-api.herokuapp.com](https://preonboarding-cardoc-api.herokuapp.com)입니다.
+[휴먼스케이프](https://humanscape.io/kr/index.html)에서 제공해주신 API 설계 과제입니다. 헤로쿠를 이용해 배포했으며, 주소는 [https://preonboarding-humanscape-api.herokuapp.com](https://preonboarding-humanscape-api.herokuapp.com)입니다.
 
 ## 과제에 대한 안내
 
@@ -41,11 +41,21 @@
 
 ## 실행 방법
 
+### 로컬 환경
+
 1. `git clone` 으로 프로젝트를 가져온 후, `npm install` 으로 필요한 패키지를 설치합니다.
 2. [식품의약품안전처\_의약품 임상시험 정보](https://www.data.go.kr/data/15056835/openapi.do)에 접속해 공공 데이터 사이트에 로그인을 한 후, 활용신청을 클릭해 일반 인증키를 발급받습니다.
 3. 루트 디렉토리에 .env 파일을 생성하고, `SERVICE_URL`은 사이트에 제시하는 요청 주소를, `SERVICE_KEY`에는 일반 인증키를 입력합니다.
 4. 개발 환경일 때는`npm run dev`으로, 배포 환경일 때는 `npm run build`으로 빌드한 후 `npm run start:prod`으로 실행합니다.
-5. POST `localhost:3000/clinical`을 실행해 임상 시험 정보를 in memory 데이터베이스에 저장하신 후에 조회 기능을 테스트하실 수 있습니다.
+5. POST `localhost:3000/clinical`을 요청해 임상 시험 정보를 SQLite 데이터베이스에 저장합니다. 이제 조회 기능을 테스트하실 수 있습니다.
+
+### 배포 환경
+
+헤로쿠는 임시 파일 시스템(ephemeral filesystem)을 사용합니다. 서버를 정지하거나 재시작하면 파일이 사라지며, 또한 하루에 한 번 임시 파일 시스템을 교체하기 때문에 **SQLite 데이터베이스의 내용을 계속 유지하기 어렵습니다.**[(출처: Heroku Dev Center)](https://devcenter.heroku.com/articles/sqlite3)
+
+AWS 배포도 고려했지만, AWS의 무료 티어에서 제시한 기간에만 배포 환경을 제공하는 것보다 지속적으로 제공해주는 것이 원래 의도였습니다. 따라서 배포 환경을 변경하는 대신 헤로쿠를 계속 사용할 것입니다.
+
+[주소](https://preonboarding-humanscape-api.herokuapp.com)에 접속하셔서 서버를 활성화하고, POST `https://preonboarding-humanscape-api.herokuapp.com/clinical`을 요청하여 임상 시험 정보를 SQLite 데이터베이스에 저장하여 조회 기능을 테스트하시는 것을 권해 드립니다.
 
 ## 수행한 작업
 
@@ -321,7 +331,7 @@ export class ClinicalService {
   @Cron('0 50 14 * * 1-6')
   async awakeHerkuServer(): Promise<void> {
     return this.httpService
-      .get('https://preonboarding-cardoc-api.herokuapp.com/')
+      .get('https://preonboarding-humanscape-api.herokuapp.com')
       .toPromise()
       .then(() => {
         return;
