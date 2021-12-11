@@ -254,7 +254,10 @@ Object.assign(whereOption, {
 
 ```typescript
 // 수정한 코드
-const UTCZeroApprovalTime = subHours(new Date(query.APPROVAL_TIME), 9);
+let UTCZeroApprovalTime = new Date(query.APPROVAL_TIME);
+if (query.NODE_ENV !== 'production') {
+  UTCZeroApprovalTime = subHours(UTCZeroApprovalTime, 9);
+}
 const datePeriod = [
   UTCZeroApprovalTime.toISOString(),
   add(UTCZeroApprovalTime, {
@@ -271,6 +274,7 @@ Object.assign(whereOption, {
 
 - `new Date(query.APPROVAL_TIME)`을 두 번 선언해 중복이 발생하는 것을 막기 위해 `UTCZeroApprovalTime` 변수를 만들었습니다.
 - 시간 조건을 0시 0분 0초 ~ 23시 59분 59초로 설정했습니다. 위의 코드를 그대로 사용하면 이틀을 조회하기 떄문입니다.
+- 오직 로컬 환경일 떄만 UTC+0 시간대로 변환하는 과정을 거치도록 수정했습니다. (헤로쿠는 UTC+0 시간대를 사용하기에 바꿀 필요가 없어서입니다.)
 
 2. 승인 시간을 지정하지 않은 경우
 
